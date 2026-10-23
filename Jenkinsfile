@@ -1,13 +1,9 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven_3.9.9'
-        jdk 'JDK21'
-    }
-
     environment {
         JAVA_HOME = '/opt/java/openjdk'
+        PATH = "/opt/maven/bin:${env.PATH}"
     }
 
     stages {
@@ -21,6 +17,8 @@ pipeline {
         stage('Compilación y Pruebas (Java 21)') {
             steps {
                 echo '=== [2/4] Compilando con JDK 21 y ejecutando pruebas unitarias ==='
+                sh 'java -version'
+                sh 'mvn -version'
                 sh 'mvn clean test'
             }
         }
