@@ -76,6 +76,13 @@
 				<version>3.2.5</version>
 			</plugin>
 
+			<!-- Plugin obligatorio SonarScanner para análisis estático -->
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>5.5.0.6356</version>
+			</plugin>
+
 			<!-- Plugin JaCoCo 0.8.12 para cobertura de código en Java 21 -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
