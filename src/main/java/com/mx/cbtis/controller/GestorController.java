@@ -46,6 +46,13 @@ public class GestorController {
 		this.template = template;
 	}
 
+	@javax.annotation.PostConstruct
+	public void init() {
+		if (this.backendUrl != null) {
+			this.backendUrl = this.backendUrl.trim().replaceAll("/+$", "");
+		}
+	}
+
 	/** Mensaje controlado que se devuelve cuando la API (8081) no responde. */
 	private static Map<String, String> mensajeError(String mensaje) {
 		Map<String, String> error = new HashMap<String, String>();
@@ -172,7 +179,7 @@ public class GestorController {
 	}
 
 	@PostMapping("/verificarLogin")
-	public ResponseEntity<?> verificarUsuario(@RequestBody Usuario paramUser) {
+	public ResponseEntity<Usuario> verificarUsuario(@RequestBody Usuario paramUser) {
 		String base = (backendUrl != null ? backendUrl.trim().replaceAll("/+$", "") : "http://localhost:8081");
 		String urlservicebd = base + "/getUsuarioLogin";
 		try {
