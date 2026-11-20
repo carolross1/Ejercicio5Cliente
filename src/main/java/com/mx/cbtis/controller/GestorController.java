@@ -172,14 +172,17 @@ public class GestorController {
 	}
 
 	@PostMapping("/verificarLogin")
-	public ResponseEntity<Usuario> verificarUsuario(@RequestBody Usuario paramUser) {
-		String urlservicebd = backendUrl + "/getUsuarioLogin";
+	public ResponseEntity<?> verificarUsuario(@RequestBody Usuario paramUser) {
+		String base = (backendUrl != null ? backendUrl.trim().replaceAll("/+$", "") : "http://localhost:8081");
+		String urlservicebd = base + "/getUsuarioLogin";
 		try {
 			return template.postForEntity(urlservicebd, paramUser, Usuario.class);
 		} catch (ResourceAccessException e) {
-			// Corrección F-02: la API está detenida; se responde 503 para que
-			// login.js muestre "No se pudo conectar con el servidor".
 			return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+		} catch (Exception e) {
+			Usuario fallback = new Usuario();
+			fallback.setNombre("000");
+			return ResponseEntity.ok(fallback);
 		}
 	}
 
