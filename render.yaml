@@ -1,0 +1,14 @@
+version: "1"
+services:
+  - type: web
+    name: api-cliente-frontend
+    runtime: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: PORT
+        value: "9080"
+      - key: API_BACKEND_URL
+        value: https://api-gestor-backend.onrender.com
