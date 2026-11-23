@@ -220,7 +220,12 @@ public class GestorController {
 		String base = normalizeBackendUrl(backendUrl);
 		String urlservicebd = base + "/getUsuarioLogin";
 		try {
-			return template.postForEntity(urlservicebd, paramUser, Usuario.class);
+			Usuario user = template.postForObject(urlservicebd, paramUser, Usuario.class);
+			if (user == null) {
+				user = new Usuario();
+				user.setNombre("000");
+			}
+			return ResponseEntity.ok(user);
 		} catch (ResourceAccessException e) {
 			return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
 		} catch (Exception e) {
@@ -352,14 +357,14 @@ public class GestorController {
 		}
 		String urlservicebd = backendUrl + "/addTareas";
 		ResponseEntity<Integer> response = template.postForEntity(urlservicebd, paramName, Integer.class);
-		return response;
+		return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
 	}
 
 	@PostMapping("/cambiosTareas")
 	public ResponseEntity<Integer> cambiosTareas(@RequestBody Tareas paramDatos) {
 		String urlservicebd = backendUrl + "/addTareas";
 		ResponseEntity<Integer> response = template.postForEntity(urlservicebd, paramDatos, Integer.class);
-		return response;
+		return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
 	}
 
 	@PostMapping("/consultarTareas")
