@@ -41,9 +41,20 @@ public class GestorController {
 
 	private String backendUrl = "https://api-gestor-backend-1pfv.onrender.com";
 
+	private String normalizeBackendUrl(String url) {
+		if (url == null || url.trim().isEmpty()) {
+			return "https://api-gestor-backend-1pfv.onrender.com";
+		}
+		String clean = url.trim().replaceAll("/+$", "");
+		if ("https://api-gestor-backend.onrender.com".equalsIgnoreCase(clean)) {
+			return "https://api-gestor-backend-1pfv.onrender.com";
+		}
+		return clean;
+	}
+
 	@org.springframework.beans.factory.annotation.Value("${api.backend.url:https://api-gestor-backend-1pfv.onrender.com}")
 	public void setBackendUrl(String backendUrl) {
-		this.backendUrl = (backendUrl != null) ? backendUrl.trim().replaceAll("/+$", "") : "https://api-gestor-backend-1pfv.onrender.com";
+		this.backendUrl = normalizeBackendUrl(backendUrl);
 	}
 
 	public GestorController(RestTemplate template) {
@@ -54,7 +65,7 @@ public class GestorController {
 	public GestorController(RestTemplate template,
 			@org.springframework.beans.factory.annotation.Value("${api.backend.url:https://api-gestor-backend-1pfv.onrender.com}") String backendUrl) {
 		this.template = template;
-		this.backendUrl = (backendUrl != null) ? backendUrl.trim().replaceAll("/+$", "") : "https://api-gestor-backend-1pfv.onrender.com";
+		this.backendUrl = normalizeBackendUrl(backendUrl);
 	}
 
 	@GetMapping("/backendStatus")
@@ -206,7 +217,7 @@ public class GestorController {
 
 	@PostMapping("/verificarLogin")
 	public ResponseEntity<Usuario> verificarUsuario(@RequestBody Usuario paramUser) {
-		String base = (backendUrl != null ? backendUrl.trim().replaceAll("/+$", "") : "http://localhost:8081");
+		String base = normalizeBackendUrl(backendUrl);
 		String urlservicebd = base + "/getUsuarioLogin";
 		try {
 			return template.postForEntity(urlservicebd, paramUser, Usuario.class);
