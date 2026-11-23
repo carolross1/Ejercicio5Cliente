@@ -58,8 +58,7 @@ public class GestorController {
 	}
 
 	@GetMapping("/backendStatus")
-	@ResponseBody
-	public Map<String, Object> backendStatus() {
+	public ResponseEntity<Map<String, Object>> backendStatus() {
 		Map<String, Object> status = new HashMap<>();
 		status.put("backendUrl", this.backendUrl);
 		try {
@@ -70,7 +69,7 @@ public class GestorController {
 			status.put("connected", false);
 			status.put("error", e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
-		return status;
+		return ResponseEntity.ok(status);
 	}
 
 	/** Mensaje controlado que se devuelve cuando la API (8081) no responde. */
