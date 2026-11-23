@@ -39,11 +39,11 @@ public class GestorController {
 	 */
 	private final RestTemplate template;
 
-	private String backendUrl = "http://localhost:8081";
+	private String backendUrl = "https://api-gestor-backend-1pfv.onrender.com";
 
-	@org.springframework.beans.factory.annotation.Value("${api.backend.url:http://localhost:8081}")
+	@org.springframework.beans.factory.annotation.Value("${api.backend.url:https://api-gestor-backend-1pfv.onrender.com}")
 	public void setBackendUrl(String backendUrl) {
-		this.backendUrl = (backendUrl != null) ? backendUrl.trim().replaceAll("/+$", "") : "http://localhost:8081";
+		this.backendUrl = (backendUrl != null) ? backendUrl.trim().replaceAll("/+$", "") : "https://api-gestor-backend-1pfv.onrender.com";
 	}
 
 	public GestorController(RestTemplate template) {
