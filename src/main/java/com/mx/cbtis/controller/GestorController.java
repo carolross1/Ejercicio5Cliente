@@ -101,10 +101,13 @@ public class GestorController {
 			return new ModelAndView("redirect:/register?error");
 		}
 
-		String urlservicebd = backendUrl + "/addUsuario";
-		template.postForEntity(urlservicebd, usuario, Integer.class);
-
-		return new ModelAndView("redirect:/login");
+		try {
+			String urlservicebd = backendUrl + "/addUsuario";
+			template.postForEntity(urlservicebd, usuario, Integer.class);
+			return new ModelAndView("redirect:/login?registrado");
+		} catch (Exception e) {
+			return new ModelAndView("redirect:/register?errorApi");
+		}
 	}
 
 	@GetMapping("/inicio")

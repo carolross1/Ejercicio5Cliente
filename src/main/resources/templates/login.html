@@ -87,7 +87,10 @@
 
     <!--Login-->
     <div class="container m-auto">
-        <form class="p-5 bg-light bg-opacity-75 rounded mt-5">
+        <div class="alert alert-success mt-4" th:if="${param.registrado}">
+            &iexcl;Usuario registrado con &eacute;xito! Ya puedes iniciar sesi&oacute;n.
+        </div>
+        <form class="p-5 bg-light bg-opacity-75 rounded mt-3">
             <h2>Iniciar sesi&oacute;n</h2>
             <div class="mb-3">
               <label for="exampleInputEmail1" class="form-label">Email</label>
