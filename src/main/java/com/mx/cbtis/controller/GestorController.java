@@ -39,18 +39,15 @@ public class GestorController {
 	 */
 	private final RestTemplate template;
 
-	@org.springframework.beans.factory.annotation.Value("${api.backend.url:http://localhost:8081}")
 	private String backendUrl = "http://localhost:8081";
+
+	@org.springframework.beans.factory.annotation.Value("${api.backend.url:http://localhost:8081}")
+	public void setBackendUrl(String backendUrl) {
+		this.backendUrl = (backendUrl != null) ? backendUrl.trim().replaceAll("/+$", "") : "http://localhost:8081";
+	}
 
 	public GestorController(RestTemplate template) {
 		this.template = template;
-	}
-
-	@javax.annotation.PostConstruct
-	public void init() {
-		if (this.backendUrl != null) {
-			this.backendUrl = this.backendUrl.trim().replaceAll("/+$", "");
-		}
 	}
 
 	/** Mensaje controlado que se devuelve cuando la API (8081) no responde. */
