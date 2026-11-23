@@ -33,7 +33,7 @@
                 Complete todos los campos y seleccione un rol.
             </div>
             <div class="alert alert-danger" th:if="${param.errorApi}">
-                No se pudo conectar con el Backend en la nube. Verifique que la API esté encendida.
+                No se pudo conectar con el Backend (<span th:text="${param.errorApi}">Error</span>).
             </div>
             <div class="mb-3">
                 <label class="form-label">Nombre(completo)</label>

@@ -47,7 +47,30 @@ public class GestorController {
 	}
 
 	public GestorController(RestTemplate template) {
+		this(template, "https://api-gestor-backend-1pfv.onrender.com");
+	}
+
+	@org.springframework.beans.factory.annotation.Autowired
+	public GestorController(RestTemplate template,
+			@org.springframework.beans.factory.annotation.Value("${api.backend.url:https://api-gestor-backend-1pfv.onrender.com}") String backendUrl) {
 		this.template = template;
+		this.backendUrl = (backendUrl != null) ? backendUrl.trim().replaceAll("/+$", "") : "https://api-gestor-backend-1pfv.onrender.com";
+	}
+
+	@GetMapping("/backendStatus")
+	@ResponseBody
+	public Map<String, Object> backendStatus() {
+		Map<String, Object> status = new HashMap<>();
+		status.put("backendUrl", this.backendUrl);
+		try {
+			ResponseEntity<String> res = template.getForEntity(this.backendUrl + "/actuator/health", String.class);
+			status.put("healthResponse", res.getBody());
+			status.put("connected", true);
+		} catch (Exception e) {
+			status.put("connected", false);
+			status.put("error", e.getClass().getSimpleName() + ": " + e.getMessage());
+		}
+		return status;
 	}
 
 	/** Mensaje controlado que se devuelve cuando la API (8081) no responde. */
@@ -102,11 +125,15 @@ public class GestorController {
 		}
 
 		try {
-			String urlservicebd = backendUrl + "/addUsuario";
+			String cleanUrl = (backendUrl != null ? backendUrl.trim().replaceAll("/+$", "") : "https://api-gestor-backend-1pfv.onrender.com");
+			String urlservicebd = cleanUrl + "/addUsuario";
 			template.postForEntity(urlservicebd, usuario, Integer.class);
 			return new ModelAndView("redirect:/login?registrado");
 		} catch (Exception e) {
-			return new ModelAndView("redirect:/register?errorApi");
+			System.err.println("Error llamando a backend /addUsuario: " + e.getMessage());
+			String err = (e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+			if (err.length() > 60) err = err.substring(0, 60);
+			return new ModelAndView("redirect:/register?errorApi=" + java.net.URLEncoder.encode(err, java.nio.charset.StandardCharsets.UTF_8));
 		}
 	}
 
