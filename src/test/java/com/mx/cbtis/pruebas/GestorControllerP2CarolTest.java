@@ -241,4 +241,57 @@ public class GestorControllerP2CarolTest {
 		assertTrue(respuesta.getBody().toString().contains("No se pudieron consultar"));
 		apiSimulada.verify();
 	}
+
+	@Test
+	@DisplayName("AUT-E06 backendStatus: responde UP cuando el backend esta activo")
+	void backendStatus_activo_devuelveTrue() {
+		apiSimulada.expect(requestTo(API + "/actuator/health"))
+				.andExpect(method(HttpMethod.GET))
+				.andRespond(withSuccess("{\"status\":\"UP\"}", MediaType.APPLICATION_JSON));
+
+		ResponseEntity<java.util.Map<String, Object>> res = controller.backendStatus();
+		assertEquals(HttpStatus.OK, res.getStatusCode());
+		assertEquals(true, res.getBody().get("connected"));
+		apiSimulada.verify();
+	}
+
+	@Test
+	@DisplayName("AUT-F06 backendStatus: responde connected=false si el backend falla")
+	void backendStatus_error_devuelveFalse() {
+		apiSimulada.expect(requestTo(API + "/actuator/health"))
+				.andExpect(method(HttpMethod.GET))
+				.andRespond(withServerError());
+
+		ResponseEntity<java.util.Map<String, Object>> res = controller.backendStatus();
+		assertEquals(HttpStatus.OK, res.getStatusCode());
+		assertEquals(false, res.getBody().get("connected"));
+		apiSimulada.verify();
+	}
+
+	@Test
+	@DisplayName("AUT-E07 setBackendUrl: normaliza URL heredada sin sufijo y vacia")
+	void setBackendUrl_normalizaCorrectamente() {
+		controller.setBackendUrl("https://api-gestor-backend.onrender.com/");
+		controller.setBackendUrl("   ");
+		controller.setBackendUrl(null);
+		controller.setBackendUrl(API);
+	}
+
+	@Test
+	@DisplayName("AUT-F07 saveUsuario: si la API falla redirige con errorApi")
+	void saveUsuario_apiFalla_redirigeErrorApi() {
+		apiSimulada.expect(requestTo(API + "/addUsuario"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withServerError());
+
+		Usuario u = new Usuario();
+		u.setNombre("Carol Test");
+		u.setCorreo_electronico("carol@test.com");
+		u.setContrasena("12345");
+		u.setRol("Estudiante");
+
+		ModelAndView mav = controller.setSaveUsuario(u);
+		assertTrue(mav.getViewName().startsWith("redirect:/register?errorApi="));
+		apiSimulada.verify();
+	}
 }

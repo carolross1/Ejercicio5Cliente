@@ -40,7 +40,9 @@ jobs:
               -Dsonar.projectKey=carolross1_Ejercicio5Cliente \
               -Dsonar.organization=carolross1 \
               -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.exclusions="**/target/**"
+              -Dsonar.exclusions="**/target/**,**/static/**,**/templates/**" \
+              -Dsonar.coverage.exclusions="**/*Application.java,**/config/**,**/modelo/**" \
+              -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
           else
             echo "SONAR_TOKEN no configurado aún; omitiendo envío a SonarCloud."
           fi
