@@ -32,15 +32,18 @@ jobs:
         run: mvn -B package -DskipTests
 
       - name: Análisis de Calidad en SonarCloud (si SONAR_TOKEN está configurado)
-        if: ${{ secrets.SONAR_TOKEN != '' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: >
-          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:5.5.0.6356:sonar
-          -Dsonar.projectKey=carolross1_Ejercicio5Cliente
-          -Dsonar.organization=carolross1
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.exclusions="**/target/**"
+        run: |
+          if [ -n "$SONAR_TOKEN" ]; then
+            mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:5.5.0.6356:sonar \
+              -Dsonar.projectKey=carolross1_Ejercicio5Cliente \
+              -Dsonar.organization=carolross1 \
+              -Dsonar.host.url=https://sonarcloud.io \
+              -Dsonar.exclusions="**/target/**"
+          else
+            echo "SONAR_TOKEN no configurado aún; omitiendo envío a SonarCloud."
+          fi
 
       - name: Publicar Reporte JaCoCo y JAR como artefactos
         uses: actions/upload-artifact@v4
