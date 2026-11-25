@@ -296,11 +296,13 @@ public class GestorControllerP2CarolTest {
 	}
 
 	@Test
-	@DisplayName("AUT-E08 Vistas GET: home, login, register, inicio, tarea, proyecto")
+	@DisplayName("AUT-E08 Vistas GET: home, tutorial, manual, login, register, inicio, tarea, proyecto")
 	void vistasGet_devuelvenNombresCorrectos() {
 		Model m = new ConcurrentModel();
 		assertEquals("home", controller.getHome());
-		assertEquals("login", controller.getLogin(m));
+		assertEquals("tutorial", controller.getTutorial());
+		assertEquals("manual", controller.getManual());
+		assertEquals("login", controller.getLogin());
 		assertEquals("register", controller.getRegister(m));
 		assertEquals("inicio", controller.getInicio(m));
 		assertEquals("proyecto", controller.getTarea(m));
