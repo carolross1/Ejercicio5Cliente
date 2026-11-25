@@ -294,4 +294,134 @@ public class GestorControllerP2CarolTest {
 		assertTrue(mav.getViewName().startsWith("redirect:/register?errorApi="));
 		apiSimulada.verify();
 	}
+
+	@Test
+	@DisplayName("AUT-E08 Vistas GET: home, login, register, inicio, tarea, proyecto")
+	void vistasGet_devuelvenNombresCorrectos() {
+		Model m = new ConcurrentModel();
+		assertEquals("home", controller.getHome());
+		assertEquals("login", controller.getLogin(m));
+		assertEquals("register", controller.getRegister(m));
+		assertEquals("inicio", controller.getInicio(m));
+		assertEquals("proyecto", controller.getTarea(m));
+
+		apiSimulada.expect(requestTo(API + "/buscarUsuarios"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
+		assertEquals("proyecto", controller.getProyecto(m));
+		apiSimulada.verify();
+	}
+
+	@Test
+	@DisplayName("AUT-E09 saveUsuario exitoso: redirige a /login?registrado")
+	void saveUsuario_valido_redirigeLogin() {
+		apiSimulada.expect(requestTo(API + "/addUsuario"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("1", MediaType.APPLICATION_JSON));
+		Usuario u = new Usuario(null, "Ana", "ana@cbtis.mx", "123", "Estudiante", "#111");
+		ModelAndView mav = controller.setSaveUsuario(u);
+		assertEquals("redirect:/login?registrado", mav.getViewName());
+		apiSimulada.verify();
+	}
+
+	@Test
+	@DisplayName("AUT-E10 Proyectos CRUD: consultar, actualizar y eliminar")
+	void proyectosCrud_funcionaCorrectamente() {
+		Model m = new ConcurrentModel();
+		apiSimulada.expect(requestTo(API + "/buscarProyectos"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("[{\"id_proyecto\":1,\"nombre\":\"P1\"}]", MediaType.APPLICATION_JSON));
+		assertEquals(HttpStatus.OK, controller.consultarProyectos(m).getStatusCode());
+
+		apiSimulada.expect(requestTo(API + "/buscarProyecto?id_proyecto=1"))
+				.andExpect(method(HttpMethod.GET))
+				.andRespond(withSuccess("{\"id_proyecto\":1,\"nombre\":\"P1\"}", MediaType.APPLICATION_JSON));
+		Proyectos p = new Proyectos();
+		p.setId_proyecto(1);
+		assertEquals(HttpStatus.OK, controller.updateProyecto(p).getStatusCode());
+
+		apiSimulada.expect(requestTo(API + "/deleteProyecto"))
+				.andExpect(method(HttpMethod.DELETE))
+				.andRespond(withSuccess("1", MediaType.APPLICATION_JSON));
+		assertEquals("redirect:/inicio", controller.eliminarProyecto(p).getViewName());
+		apiSimulada.verify();
+	}
+
+	@Test
+	@DisplayName("AUT-E11 Tareas y Comentarios CRUD completo")
+	void tareasYComentariosCrud_funcionaCorrectamente() {
+		Model m = new ConcurrentModel();
+		Tareas t = new Tareas();
+		t.setId_tarea(1);
+		t.setId_proyecto(1);
+		t.setNombre("Tarea 1");
+		t.setFecha_vencimiento("");
+
+		apiSimulada.expect(requestTo(API + "/getTarea"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
+		assertEquals(HttpStatus.OK, controller.obtenerTareas(t, m).getStatusCode());
+
+		apiSimulada.expect(requestTo(API + "/addTareas"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("1", MediaType.APPLICATION_JSON));
+		assertEquals("redirect:/proyecto", controller.setSaveTareas(t).getViewName());
+
+		apiSimulada.expect(requestTo(API + "/buscarTarea?id_tarea=1"))
+				.andExpect(method(HttpMethod.GET))
+				.andRespond(withSuccess("{\"id_tarea\":1,\"nombre\":\"Tarea 1\"}", MediaType.APPLICATION_JSON));
+		assertEquals(HttpStatus.OK, controller.updateTarea(t).getStatusCode());
+
+		apiSimulada.expect(requestTo(API + "/deleteTareas"))
+				.andExpect(method(HttpMethod.DELETE))
+				.andRespond(withSuccess("1", MediaType.APPLICATION_JSON));
+		assertEquals("redirect:/proyecto", controller.eliminarTarea(t).getViewName());
+
+		apiSimulada.expect(requestTo(API + "/addTareas"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("1", MediaType.APPLICATION_JSON));
+		assertEquals(HttpStatus.OK, controller.verificarTarea(t).getStatusCode());
+
+		apiSimulada.expect(requestTo(API + "/addTareas"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("1", MediaType.APPLICATION_JSON));
+		assertEquals(HttpStatus.OK, controller.cambiosTareas(t).getStatusCode());
+
+		apiSimulada.expect(requestTo(API + "/buscarTareas"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
+		assertEquals(HttpStatus.OK, controller.consultarTareas().getStatusCode());
+
+		com.mx.cbtis.modelo.Comentarios c = new com.mx.cbtis.modelo.Comentarios();
+		apiSimulada.expect(requestTo(API + "/getComentario"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
+		assertEquals(HttpStatus.OK, controller.obtenerComentarios(c, m).getStatusCode());
+
+		apiSimulada.expect(requestTo(API + "/addComentario"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("1", MediaType.APPLICATION_JSON));
+		assertEquals("proyecto", controller.setSaveComentario(c));
+
+		apiSimulada.expect(requestTo(API + "/buscarComentarios"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
+		assertEquals(HttpStatus.OK, controller.consultarComentarios().getStatusCode());
+		apiSimulada.verify();
+	}
+
+	@Test
+	@DisplayName("AUT-F08 verificarLogin: null y error generico devuelven fallback 000")
+	void verificarLogin_nullYError_devuelveFallback() {
+		apiSimulada.expect(requestTo(API + "/getUsuarioLogin"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withSuccess("", MediaType.APPLICATION_JSON));
+		assertEquals("000", controller.verificarUsuario(new Usuario()).getBody().getNombre());
+
+		apiSimulada.expect(requestTo(API + "/getUsuarioLogin"))
+				.andExpect(method(HttpMethod.POST))
+				.andRespond(withServerError());
+		assertEquals("000", controller.verificarUsuario(new Usuario()).getBody().getNombre());
+		apiSimulada.verify();
+	}
 }
