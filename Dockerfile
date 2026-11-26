@@ -15,4 +15,4 @@ ENV PORT=9080
 ENV API_BACKEND_URL=https://api-gestor-backend-1pfv.onrender.com
 
 EXPOSE 9080
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-Xss512k", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-XX:TieredStopAtLevel=1", "-Xss512k", "-Djava.security.egd=file:/dev/./urandom", "-Dspring.jmx.enabled=false", "-Dspring.main.lazy-initialization=true", "-jar", "app.jar"]
